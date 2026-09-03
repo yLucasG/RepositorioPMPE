@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pmpe-blue: #354686;
+}
+
+
+/* Light theme base */
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Fix select dropdown styling */
+select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}

@@ -1,0 +1,14 @@
+// Compila só api/**/*.ts pra JS puro, usado no build da imagem Docker (self-hosted).
+// Não interfere em nada da Vercel, que usa seu próprio pipeline de build pra api/.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist-server",
+    "rootDir": "api",
+    "types": ["node"],
+    "noEmit": false
+  },
+  "include": ["api/**/*.ts"]
+}

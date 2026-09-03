@@ -1,0 +1,5 @@
+/* Estilos específicos para o componente editar */
+:host {
+  display: block;
+  width: 100%;
+}

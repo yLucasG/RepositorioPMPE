@@ -1,0 +1,106 @@
+<div class="min-h-screen bg-slate-50 p-6 md:p-12 flex flex-col items-center justify-center">
+
+  <!-- Back -->
+  <div class="w-full max-w-2xl mb-4">
+    <a routerLink="/admin" class="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+      Voltar para o Painel
+    </a>
+  </div>
+
+  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden relative">
+    <div class="h-1 bg-gradient-to-r from-[#1a365d] to-[#1a365d]/50"></div>
+
+    <div class="text-center pt-6 pb-8 px-8">
+      <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Upload em Lote com IA</h2>
+      <p class="text-slate-500 mt-2">Envie dezenas de trabalhos acadêmicos de uma só vez. A IA irá extrair e salvar os dados automaticamente.</p>
+    </div>
+
+    <div class="px-8 pb-8 space-y-6">
+
+      @if (status()?.error) {
+        <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-200 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+          <p>{{ status()!.error }}</p>
+        </div>
+      }
+
+      <!-- Drop zone (only when not uploading) -->
+      @if (!isBatchUploading()) {
+        <div (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="filesInput.click()"
+          class="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center cursor-pointer transition-all hover:border-blue-400 hover:bg-slate-50">
+          <input #filesInput type="file" accept=".pdf" multiple (change)="onFilesSelected($event)" class="hidden" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+          <p class="text-lg font-medium text-slate-700">Arraste e solte vários PDFs aqui</p>
+          <p class="text-sm text-slate-400 mt-1">Ou clique para selecionar os arquivos no seu computador.</p>
+        </div>
+      }
+
+      <!-- Progress -->
+      @if (isBatchUploading()) {
+        <div class="space-y-4 p-6 border border-slate-200 rounded-xl bg-slate-50">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-semibold text-lg flex items-center gap-2 text-slate-800">
+              <div class="w-5 h-5 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+              {{ isWaitingDelay() ? 'Aguardando tempo de respiro da IA...' : 'Processando Arquivos...' }}
+            </span>
+            <span class="text-sm font-medium text-slate-500">{{ currentFileIndex() }} de {{ totalFiles() }}</span>
+          </div>
+          <div class="h-4 w-full bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-full bg-[#1a365d] transition-all duration-500 ease-out" [style.width.%]="progressPercentage"></div>
+          </div>
+          <p class="text-sm text-right text-slate-500 mt-1">{{ progressPercentage }}% concluído</p>
+        </div>
+      }
+
+      <!-- Results -->
+      @if (status()?.finished && !isBatchUploading()) {
+        <div class="space-y-4 mt-4">
+          <div class="bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-emerald-200 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto mb-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <h3 class="font-bold text-lg">Upload em Lote Concluído!</h3>
+            <p class="text-sm opacity-90">Processamento finalizado com {{ sucessos().length }} sucessos e {{ erros().length }} erros.</p>
+          </div>
+
+          @if (sucessos().length > 0) {
+            <div class="border border-slate-200 rounded-xl overflow-hidden">
+              <div class="bg-slate-100 px-4 py-2 border-b border-slate-200">
+                <h4 class="font-semibold text-sm flex items-center gap-2 text-slate-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                  Trabalhos Adicionados ({{ sucessos().length }})
+                </h4>
+              </div>
+              <ul class="divide-y divide-slate-100 max-h-60 overflow-y-auto">
+                @for (titulo of sucessos(); track titulo) {
+                  <li class="px-4 py-3 text-sm flex items-start gap-3">
+                    <span class="text-emerald-500 mt-0.5">•</span>
+                    <span class="font-medium text-slate-700">{{ titulo }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (erros().length > 0) {
+            <div class="border border-red-200 rounded-xl overflow-hidden">
+              <div class="bg-red-50 px-4 py-2 border-b border-red-200">
+                <h4 class="font-semibold text-sm text-red-600 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+                  Falhas no Processamento ({{ erros().length }})
+                </h4>
+              </div>
+              <ul class="divide-y divide-red-100 max-h-60 overflow-y-auto">
+                @for (erro of erros(); track erro.filename) {
+                  <li class="px-4 py-3 text-sm flex flex-col">
+                    <span class="font-medium text-red-600">{{ erro.filename }}</span>
+                    <span class="text-xs text-slate-500 mt-1">{{ erro.reason }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

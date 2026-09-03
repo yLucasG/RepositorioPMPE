@@ -1,0 +1,44 @@
+<div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden relative">
+    <!-- Gradient top bar -->
+    <div class="h-1 bg-gradient-to-r from-[#1a365d] to-[#1a365d]/50"></div>
+
+    <!-- Header -->
+    <div class="text-center pt-8 pb-6 px-8">
+      <div class="mx-auto bg-[#1a365d]/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#1a365d]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900">Acesso Restrito</h2>
+      <p class="text-sm text-slate-500 mt-1">Área administrativa do repositório</p>
+    </div>
+
+    <!-- Form -->
+    <div class="px-8 pb-8">
+      <form (submit)="onSubmit($event)" class="space-y-4">
+
+        @if (error()) {
+          <div class="bg-red-50 text-red-600 text-sm font-medium p-3 rounded-lg border border-red-200 text-center">
+            {{ error() }}
+          </div>
+        }
+
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-700">Usuário</label>
+          <input name="usuario" required placeholder="Digite seu usuário..."
+            class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all" />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-700">Senha</label>
+          <input name="senha" type="password" required placeholder="••••••••"
+            class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all" />
+        </div>
+
+        <button type="submit" [disabled]="loading()"
+          class="w-full h-11 mt-4 bg-[#1a365d] text-white font-semibold rounded-xl hover:bg-[#1e3a5f] transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+          {{ loading() ? 'Acessando...' : 'Entrar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

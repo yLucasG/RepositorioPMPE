@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+
+  <!-- ========== HEADER PMPE ========== -->
+  <header class="bg-pmpe-blue text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-center gap-4">
+      <img src="assets/download.jpg" alt="Logo APMP"
+        class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 shadow-inner object-cover">
+      <div class="text-left">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Repositório Acadêmico</h1>
+        <p class="text-sm sm:text-base text-blue-200 mt-0.5">Polícia Militar de Pernambuco — APMP</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== ROUTER OUTLET ========== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <router-outlet />
+  </main>
+
+  <!-- ========== FOOTER OFICIAL PMPE ========== -->
+  <footer class="bg-pmpe-blue text-white mt-auto py-12 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col items-center text-center space-y-6">
+        <!-- Logo APMP Centralizada -->
+        <img src="assets/download.jpg" alt="Logo APMP"
+          class="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg object-cover">
+
+
+        <div class="max-w-3xl">
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Este acervo digital pertence à <strong class="text-white">Polícia Militar de Pernambuco</strong>.
+            É vedada a comercialização, reprodução total ou parcial sem autorização prévia.
+            Todos os direitos reservados à Academia de Polícia Militar do Paudalho (APMP).
+          </p>
+        </div>
+
+        <div class="h-px w-32 bg-white/10"></div>
+
+        <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em]">
+          Copyright © 2026 • PMPE / DTEC / APMP
+        </p>
+      </div>
+    </div>
+  </footer>
+
+</div>

@@ -1,0 +1,156 @@
+<div class="space-y-8">
+
+  <!-- Subtítulo -->
+  <p class="text-center text-sm md:text-base text-slate-500 max-w-2xl mx-auto uppercase tracking-wide">
+    Pesquise por teses, dissertações e artigos no nosso acervo digital com facilidade e rapidez.
+  </p>
+
+  <!-- ===== BARRA DE BUSCA + FILTROS ===== -->
+  <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-4">
+    <div class="flex gap-3">
+      <div class="relative flex-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
+          placeholder="Buscar por título, resumo, assunto ou autor..."
+          class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all text-sm placeholder:text-xs sm:placeholder:text-sm" />
+      </div>
+      <button class="px-6 py-3 bg-[#1a365d] text-white text-sm font-semibold rounded-xl hover:bg-[#1e3a5f] transition-colors shrink-0 cursor-pointer">BUSCAR</button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="relative">
+        <select [value]="selectedCategoria()" (change)="onCategoriaChange($event)" class="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all cursor-pointer truncate">
+          <option value="all">Filtro por Linha de Pesquisa</option>
+          @for (cat of categorias(); track cat) {
+            <option [value]="cat" [title]="cat">{{ cat }}</option>
+          }
+        </select>
+        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+      </div>
+      <div class="relative">
+        <select [value]="selectedTipo()" (change)="onTipoChange($event)" class="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all cursor-pointer truncate">
+          <option value="all">Todos os Tipos</option>
+          @for (t of tipos(); track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+      </div>
+      <div class="relative">
+        <select [value]="selectedAno()" (change)="onAnoChange($event)" class="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all cursor-pointer">
+          <option value="all">Todos os Anos</option>
+          @for (ano of anos(); track ano) { <option [value]="ano">{{ ano }}</option> }
+        </select>
+        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+      </div>
+      <div class="relative">
+        <select [value]="selectedAutor()" (change)="onAutorChange($event)" class="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all cursor-pointer">
+          <option value="all">Todos os Autores</option>
+          @for (autor of autores(); track autor) { <option [value]="autor">{{ autor }}</option> }
+        </select>
+        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+      </div>
+    </div>
+
+    @if (searchQuery() || selectedCategoria() !== 'all' || selectedTipo() !== 'all' || selectedAno() !== 'all' || selectedAutor() !== 'all') {
+      <div class="flex justify-end">
+        <button (click)="clearFilters()" class="text-xs text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1 cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          Limpar filtros
+        </button>
+      </div>
+    }
+  </section>
+
+  <!-- LOADING -->
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-32">
+      <div class="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="mt-4 text-slate-500 text-sm">Carregando trabalhos acadêmicos...</p>
+    </div>
+  }
+
+  <!-- ERROR -->
+  @if (error()) {
+    <div class="max-w-md mx-auto mt-10 p-6 bg-red-50 border border-red-200 rounded-2xl text-center">
+      <p class="text-red-600 font-medium">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- RESULTS -->
+  @if (!loading() && !error()) {
+    <p class="text-sm text-slate-500">
+      {{ filteredTrabalhos().length }} documento{{ filteredTrabalhos().length !== 1 ? 's' : '' }} encontrado{{ filteredTrabalhos().length !== 1 ? 's' : '' }}
+    </p>
+
+    @if (filteredTrabalhos().length === 0) {
+      <div class="text-center py-24 bg-white/50 rounded-2xl border border-slate-200 border-dashed">
+        <p class="text-xl text-slate-400">Nenhum documento encontrado com os filtros atuais.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (trabalho of filteredTrabalhos(); track trabalho.id) {
+          <a [routerLink]="['/trabalho', trabalho.id]" class="block cursor-pointer">
+            <article class="group flex flex-col h-full bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <div class="bg-slate-50/80 px-6 py-5 border-b border-slate-100">
+                <h3 class="text-lg font-semibold text-slate-900 leading-snug line-clamp-3 group-hover:text-blue-700 transition-colors duration-300 text-center">{{ trabalho.titulo }}</h3>
+              </div>
+              <div class="flex-1 px-6 py-4 space-y-3">
+                <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 text-center">{{ trabalho.resumo }}</p>
+                <div class="flex flex-wrap gap-2 items-center justify-center">
+                  <span class="inline-flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                    {{ trabalho.ano }}
+                  </span>
+                  @if (trabalho.tipo) {
+                    <span class="inline-flex items-center shrink-0 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700">
+                      {{ trabalho.tipo }}
+                    </span>
+                  }
+                  <span class="inline-flex items-center justify-center flex-1 min-w-[45%] px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-medium bg-blue-100 text-blue-800 leading-tight text-center break-words">
+                    {{ trabalho.categoria }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-slate-50/50 border-t border-slate-100 px-6 py-3">
+                <div class="flex flex-col items-center justify-center gap-2 text-center">
+                  <div class="flex items-center justify-center gap-2 text-sm text-slate-500 min-w-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                    <span class="font-medium line-clamp-1 capitalize text-slate-700">{{ trabalho.autor }}</span>
+                  </div>
+                  <span class="text-sm font-semibold text-blue-600 flex items-center justify-center gap-1 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                    Acessar
+                  </span>
+                </div>
+              </div>
+            </article>
+          </a>
+        }
+      </div>
+
+      <!-- PAGINAÇÃO -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 pb-8">
+        <button 
+          (click)="irParaPagina(paginaAtual() - 1)" 
+          [disabled]="paginaAtual() === 1"
+          class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm flex items-center gap-2 cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+          Anterior
+        </button>
+
+        <span class="text-sm font-semibold text-slate-600 bg-slate-100 px-4 py-2 rounded-lg">
+          Página {{ paginaAtual() }} de {{ totalPaginas() }}
+        </span>
+
+        <button 
+          (click)="irParaPagina(paginaAtual() + 1)" 
+          [disabled]="paginaAtual() === totalPaginas()"
+          class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm flex items-center gap-2 cursor-pointer">
+          Próximo
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+    }
+  }
+</div>
