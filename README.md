@@ -16,8 +16,6 @@
 
 Este repositório foi desenvolvido sob a égide da **Diretoria de Tecnologia (DTEC)** para centralizar e modernizar o acervo acadêmico da **Polícia Militar de Pernambuco**. O sistema automatiza a catalogação de monografias, dissertações e artigos, garantindo que o conhecimento estratégico institucional seja preservado e facilmente acessível por pesquisadores.
 
-É a versão **100% self-hosted**: frontend, API, banco de dados e arquivos rodam inteiramente na infraestrutura do DTEC, sem depender de nenhuma conta ou serviço externo (Vercel, Supabase etc.). A única dependência opcional de internet é a extração automática de dados por IA (API do Gemini) — sem ela, o sistema funciona normalmente, só que o cadastro de trabalhos precisa ser preenchido manualmente.
-
 ---
 
 ## 🧱 Arquitetura do Sistema
