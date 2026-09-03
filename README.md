@@ -99,18 +99,20 @@ O `ng serve` já está configurado ([`proxy.conf.json`](proxy.conf.json)) para e
 
 
 
-- **Conexão com o banco de dados** — [`api/app.ts`](api/app.ts), linhas 27-31: lê a variável `DATABASE_URL`, monta o adapter do Prisma (`PrismaPg`) e instancia o `PrismaClient` usado em todas as rotas. O schema das tabelas fica em [`prisma/schema.prisma`](prisma/schema.prisma) (modelos `TrabalhoAcademico`, `Admin` e `VisualizacaoTrabalho`), e a string de conexão usada pelos comandos do Prisma CLI (`prisma generate`, `prisma db execute`) é lida em [`prisma.config.ts`](prisma.config.ts).
+- **Conexão com o banco de dados** — [`api/app.ts`](api/app.ts), linhas 28-32: lê a variável `DATABASE_URL`, monta o adapter do Prisma (`PrismaPg`) e instancia o `PrismaClient` usado em todas as rotas. O schema das tabelas fica em [`prisma/schema.prisma`](prisma/schema.prisma) (modelos `TrabalhoAcademico`, `Admin` e `VisualizacaoTrabalho`), e a string de conexão usada pelos comandos do Prisma CLI (`prisma generate`, `prisma db execute`) é lida em [`prisma.config.ts`](prisma.config.ts).
 
 - **Armazenamento dos PDFs** — também em [`api/app.ts`](api/app.ts):
-  - Linha 37: define `UPLOADS_DIR`, a pasta no disco onde os arquivos ficam salvos (configurável pela variável de ambiente `UPLOADS_DIR`).
-  - Linhas 42-46: função `salvarArquivoLocal()` — recebe o PDF em memória, gera um nome único (UUID) e grava o arquivo nessa pasta.
-  - Linhas 48-55: função `removerArquivoDoStorage()` — apaga o arquivo do disco quando o trabalho correspondente é excluído.
-  - Linhas 57-63: configuração do `multer` (upload) — limite de 20MB e validação de que o arquivo é um PDF de verdade.
-  - Linha 218: `app.use("/uploads", express.static(UPLOADS_DIR...))` — é essa linha que serve os PDFs de volta pro navegador quando alguém clica pra baixar.
+  - Linha 45: define `UPLOADS_DIR`, a pasta no disco onde os arquivos ficam salvos (configurável pela variável de ambiente `UPLOADS_DIR`).
+  - Linhas 50-54: função `salvarArquivoLocal()` — recebe o PDF em memória, gera um nome único (UUID) e grava o arquivo nessa pasta.
+  - Linhas 56-63: função `removerArquivoDoStorage()` — apaga o arquivo do disco quando o trabalho correspondente é excluído.
+  - Linhas 65-71: configuração do `multer` (upload) — limite de 20MB e validação de que o arquivo é um PDF de verdade.
+  - Linha 245: `app.use("/uploads", express.static(UPLOADS_DIR...))` — é essa linha que serve os PDFs de volta pro navegador quando alguém clica pra baixar.
 
 - **Rotas da API** (`/api/*`) — todas em [`api/app.ts`](api/app.ts), organizadas em duas seções:
-  - **Públicas** (a partir da linha 220): listar trabalhos (`GET /api/trabalhos`), buscar um trabalho por id (`GET /api/trabalhos/:id`), registrar download (`POST /api/trabalhos/:id/download`).
-  - **Administrativas**, protegidas por login (a partir da linha 327): login (`POST /api/admin/login`), upload de PDF (`POST /api/admin/upload`), estatísticas do painel (`GET /api/admin/stats`), criar/editar/excluir trabalho (`POST`/`PUT`/`DELETE /api/trabalhos`), exclusão em lote e extração de dados por IA (`POST /api/ia/extrair-dados`).
+  - **Públicas** (a partir da linha 247): listar trabalhos (`GET /api/trabalhos`), buscar um trabalho por id (`GET /api/trabalhos/:id`), registrar download (`POST /api/trabalhos/:id/download`).
+  - **Administrativas**, protegidas por login (a partir da linha 354): login (`POST /api/admin/login`), upload de PDF (`POST /api/admin/upload`), estatísticas do painel (`GET /api/admin/stats`), criar/editar/excluir trabalho (`POST`/`PUT`/`DELETE /api/trabalhos`), exclusão em lote e extração de dados por IA (`POST /api/ia/extrair-dados`).
+
+- **Autenticação institucional (PM)** — [`api/auth-ldap-pm.ts`](api/auth-ldap-pm.ts): integração opcional com o sistema de login que a PM já usa em outros sistemas (Portal PMPE etc.), atrás da variável `AUTH_MODE` (padrão `local`, sem afetar o login atual). Detalhes e limitações no topo do próprio arquivo.
 
 - **Servidor / entrypoint** — [`api/server.ts`](api/server.ts): é o processo Node que fica no ar de verdade. Ele pega o app do Express com todas as rotas acima, serve o build do Angular (pasta `dist/repositorio-angular/browser`) e devolve `index.html` pra qualquer rota que não seja `/api` nem `/uploads`, deixando o Angular Router assumir a navegação no navegador.
 

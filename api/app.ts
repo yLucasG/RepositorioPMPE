@@ -11,6 +11,7 @@ import { GoogleGenerativeAI, GoogleGenerativeAIFetchError, SchemaType, type Obje
 import { createHmac } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { autenticarNaPm } from "./auth-ldap-pm.js";
 
 // Retorna sempre `string` (nunca `string | undefined`), então o TypeScript não
 // reclama quando a variável é usada dentro de closures (handlers de rota) definidas
@@ -32,6 +33,13 @@ const prisma = new PrismaClient({ adapter });
 
 const geminiApiKey = process.env['GEMINI_API_KEY'];
 const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
+
+// "local" (padrão) = senha própria, com hash na tabela Admin (como já funciona hoje).
+// "ldap-pm" = valida a credencial contra o sistema de login da PM (ver
+// api/auth-ldap-pm.ts), testado e funcionando em 03/09/2026. ⚠️ Nesse modo,
+// QUALQUER credencial válida da PM vira admin (sem whitelist) — combinado como
+// etapa temporária até o DTEC restringir por Sistema/Perfil próprio.
+const authMode = process.env['AUTH_MODE'] === "ldap-pm" ? "ldap-pm" : "local";
 
 // PDFs salvos em disco, no próprio servidor (sem depender de nenhum serviço externo).
 const UPLOADS_DIR = path.resolve(process.env['UPLOADS_DIR'] || "./uploads");
@@ -349,16 +357,40 @@ app.post("/api/trabalhos/:id/download", async (req, res) => {
 app.post("/api/admin/login", loginLimiter, async (req, res) => {
   try {
     const { usuario, senha } = req.body;
-    const admin = await prisma.admin.findUnique({ where: { usuario } });
-    if (!admin) {
-      res.status(401).json({ error: "Usuário ou senha inválidos." });
-      return;
+    let admin;
+
+    if (authMode === "ldap-pm") {
+      // ⚠️ Sem whitelist por enquanto: QUALQUER credencial válida da PM entra como
+      // admin (criação de trabalho, upload/exclusão de PDF, tudo). Combinado assim
+      // como etapa temporária, até o DTEC cadastrar o Repositório Acadêmico como um
+      // "Sistema" próprio na identidade da PM e a gente poder restringir por
+      // Sistema/Perfil, como o Portal PMPE já faz com os outros sistemas deles.
+      const resultado = await autenticarNaPm(usuario, senha);
+      if (!resultado.ok) {
+        res.status(401).json({ error: "Usuário ou senha inválidos." });
+        return;
+      }
+      // Registra (ou reaproveita) o usuário localmente na primeira vez que ele
+      // loga — só pra ter um id/registro nosso; senhaHash não é usada nesse modo,
+      // quem confirma a senha é sempre a API da PM, nunca comparamos hash aqui.
+      admin = await prisma.admin.upsert({
+        where: { usuario },
+        update: {},
+        create: { usuario, senhaHash: "AUTENTICADO_VIA_LDAP_PM" },
+      });
+    } else {
+      admin = await prisma.admin.findUnique({ where: { usuario } });
+      if (!admin) {
+        res.status(401).json({ error: "Usuário ou senha inválidos." });
+        return;
+      }
+      const valid = await bcrypt.compare(senha, admin.senhaHash);
+      if (!valid) {
+        res.status(401).json({ error: "Usuário ou senha inválidos." });
+        return;
+      }
     }
-    const valid = await bcrypt.compare(senha, admin.senhaHash);
-    if (!valid) {
-      res.status(401).json({ error: "Usuário ou senha inválidos." });
-      return;
-    }
+
     const token = jwt.sign({ sub: admin.id, usuario: admin.usuario }, jwtSecret, { algorithm: "HS256", expiresIn: "8h" });
     res.json({ success: true, token, user: { id: admin.id, usuario: admin.usuario } });
   } catch (error) {
