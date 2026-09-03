@@ -62,6 +62,8 @@ const upload = multer({
   },
 });
 
+// "http://localhost:4200" cobre o `ng serve` local: o proxy (proxy.conf.json)
+// repassa /api/* pro backend em :3000 mas preserva o Origin original do navegador.
 const allowedOrigins = [
   "http://localhost:4200",
   "https://repositorio-apmp.vercel.app",
@@ -191,15 +193,32 @@ function validarDadosTrabalho(body: any): string | null {
 
 const app = express();
 app.set("trust proxy", 1);
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-}));
+// No self-hosted (server.ts) e na Vercel, frontend e API são sempre a mesma origem
+// (o próprio Express serve os dois, ou o mesmo domínio da Vercel) — então requisições
+// same-origin são sempre liberadas, não importa qual IP/domínio o DTEC use pra
+// acessar o site. allowedOrigins cobre só o caso de origem diferente de propósito
+// (dev local com `ng serve` em :4200 chamando a API em :3000, e a Vercel).
+app.use((req, res, next) => {
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      let mesmaOrigem = false;
+      try {
+        mesmaOrigem = new URL(origin).host === req.headers.host;
+      } catch {
+        mesmaOrigem = false;
+      }
+      if (mesmaOrigem || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })(req, res, next);
+});
 app.use(express.json());
 // Escopado em /api: na Vercel só rotas /api passam por este app mesmo (estático é
 // servido à parte), mas no self-hosted (server.ts) este mesmo app também serve o
